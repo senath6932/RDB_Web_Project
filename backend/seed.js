@@ -14,6 +14,13 @@ const connectDB = require('./config/db');
 
 const seedData = async () => {
     try {
+        const adminUsername = process.env.SEED_ADMIN_USERNAME;
+        const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+
+        if (!adminUsername || !adminPassword) {
+            throw new Error('SEED_ADMIN_USERNAME and SEED_ADMIN_PASSWORD must be set in backend/.env');
+        }
+
         await connectDB();
         console.log('Connected to MongoDB Atlas...');
 
@@ -28,12 +35,12 @@ const seedData = async () => {
 
         // --- Create admin user ---
         const admin = await User.create({
-            username: 'admin',
+            username: adminUsername,
             email: 'admin@rdb.lk',
-            password: 'admin123',
+            password: adminPassword,
             role: 'admin'
         });
-        console.log('Admin user created: admin / admin123');
+        console.log('Admin user created.');
 
         // --- Seed Personnel ---
         const personnel = await Personnel.insertMany([
@@ -355,10 +362,7 @@ const seedData = async () => {
         console.log('\n========================================');
         console.log('  Database seeded successfully!');
         console.log('========================================');
-        console.log('  Admin Login:');
-        console.log('  Username: admin');
-        console.log('  Password: admin123');
-        console.log('========================================\n');
+        console.log('Admin credentials were loaded from backend/.env.');
 
         process.exit(0);
     } catch (error) {
